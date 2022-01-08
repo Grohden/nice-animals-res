@@ -12,3 +12,9 @@ web-build/
 
 # macOS
 .DS_Store
+
+# BS
+*.bs.js
+.bsb.lock
+.merlin
+lib/bs
