@@ -13,7 +13,7 @@ module ShibeOnline = {
 
   let argToStr = ((name, value)) => name ++ "=" ++ value
 
-  let toQueryStr = list => Belt.Array.joinWith(list, "=", argToStr)
+  let toQueryStr = list => Belt.Array.joinWith(list, "&", argToStr)
 
   let getAnimals = (~count=10, ~urls=true, ()) => {
     let queryStr = [("count", count->Js.Int.toString), ("urls", urls->Js.String.make)]->toQueryStr

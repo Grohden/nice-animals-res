@@ -4,6 +4,7 @@ open ShibeOnline
 let styles = {
   open Style
   StyleSheet.create({
+    "mainContainer": viewStyle(~flex=1., ()),
     "imageContainer": viewStyle(~justifyContent=#center, ~padding=12.->dp, ()),
   })
 }
@@ -34,22 +35,24 @@ module HomeScene = {
       None
     })
 
-    switch state {
+    let mainView = switch state {
     | Loading => <ActivityIndicator />
     | Loaded(urls) =>
-      urls
-      ->Belt.Array.map(url => {
-        <View key={url} style={styles["imageContainer"]}>
-          <Image
-            source={toSource(url)}
-            style={
-              open Style
-              style(~maxWidth=imageSize, ~height=imageSize, ())
-            }
-          />
-        </View>
-      })
-      ->React.array
+      <ScrollView style={styles["mainContainer"]} contentInsetAdjustmentBehavior=#automatic>
+        {Belt.Array.map(urls, url => {
+          <View key={url} style={styles["imageContainer"]}>
+            <Image
+              source={toSource(url)}
+              style={
+                open Style
+                style(~maxWidth=imageSize, ~height=imageSize, ())
+              }
+            />
+          </View>
+        })->React.array}
+      </ScrollView>
     }
+
+    <SafeAreaView style={Style.viewStyle(~flex=1., ())}> {mainView} </SafeAreaView>
   }
 }

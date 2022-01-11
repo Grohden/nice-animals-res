@@ -12,8 +12,5 @@ let useIsDarkMode = () => {
 let app = () => {
   let isDarkMode = useIsDarkMode()
 
-  <SafeAreaView>
-    <StatusBar barStyle={isDarkMode ? #lightContent : #darkContent} />
-    <ScrollView contentInsetAdjustmentBehavior=#automatic> <HomeScene /> </ScrollView>
-  </SafeAreaView>
+  <> <StatusBar barStyle={isDarkMode ? #lightContent : #darkContent} /> <HomeScene /> </>
 }
