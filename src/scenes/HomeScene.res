@@ -5,7 +5,7 @@ let styles = {
   open Style
   StyleSheet.create({
     "mainContainer": viewStyle(~flex=1., ()),
-    "imageContainer": viewStyle(~justifyContent=#center, ~padding=12.->dp, ()),
+    "imageContainer": viewStyle(~justifyContent=#center, ()),
   })
 }
 
@@ -14,45 +14,48 @@ let toSource = uri => {
   Source.fromUriSource(uriSource(~uri, ()))
 }
 
-module HomeScene = {
-  type state = Loading | Loaded(array<string>)
+type state = Loading | Loaded(array<string>)
 
-  @react.component
-  let make = () => {
-    let (state, setState) = React.Uncurried.useState(_ => Loading)
-    let dimensions = Dimensions.get(#screen)
-    let imageSize = Style.dp(dimensions.width -. 24.)
+@react.component
+let make = () => {
+  let (state, setState) = React.Uncurried.useState(_ => Loading)
+  let dimensions = Dimensions.get(#window)
+  let numColumns = 2
+  let imageSize = (dimensions.width /. Belt.Float.fromInt(numColumns))->Style.dp
 
-    React.useEffect0(() => {
-      open Promise
-      ShibeOnline.getAnimals()
-      ->then(urls => {
-        setState(._prev => Loaded(urls))
-        resolve()
-      })
-      ->ignore
-
-      None
+  React.useEffect0(() => {
+    open Promise
+    ShibeOnline.getAnimals()
+    ->then(urls => {
+      setState(._prev => Loaded(urls))
+      resolve()
     })
+    ->ignore
 
-    let mainView = switch state {
-    | Loading => <ActivityIndicator />
-    | Loaded(urls) =>
-      <ScrollView style={styles["mainContainer"]} contentInsetAdjustmentBehavior=#automatic>
-        {Belt.Array.map(urls, url => {
-          <View key={url} style={styles["imageContainer"]}>
-            <Image
-              source={toSource(url)}
-              style={
-                open Style
-                style(~maxWidth=imageSize, ~height=imageSize, ())
-              }
-            />
-          </View>
-        })->React.array}
-      </ScrollView>
-    }
+    None
+  })
 
-    <SafeAreaView style={Style.viewStyle(~flex=1., ())}> {mainView} </SafeAreaView>
+  switch state {
+  | Loading => <ActivityIndicator />
+  | Loaded(urls) =>
+    <FlatList
+      style={styles["mainContainer"]}
+      contentInsetAdjustmentBehavior=#automatic
+      data={urls}
+      numColumns={numColumns}
+      extraData={styles["imageContainer"]}
+      keyExtractor={(url, _) => url}
+      renderItem={data => {
+        <View style={styles["imageContainer"]}>
+          <Image
+            source={toSource(data.item)}
+            style={
+              open Style
+              style(~width=imageSize, ~height=imageSize, ())
+            }
+          />
+        </View>
+      }}
+    />
   }
 }
